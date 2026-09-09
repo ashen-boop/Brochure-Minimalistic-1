@@ -1696,6 +1696,11 @@
         .art-mark .m2 { width: 10px; background: #2A7D6B; }
         .art-mark .m3 { width: 30px; background: #1a1a1a; }
         body.dark .art-mark .m3 { background: #888; }
+
+        /* Prevent zoom on touch devices */
+html {
+    touch-action: manipulation;
+}
     </style>
 </head>
 <body>
