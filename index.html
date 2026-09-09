@@ -1697,6 +1697,20 @@
         .art-mark .m3 { width: 30px; background: #1a1a1a; }
         body.dark .art-mark .m3 { background: #888; }
 
+
+        /* Fix elements that might be causing overflow */
+img, video, iframe, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.section-wrapper.alt-bg,
+.section-wrapper.alt-bg-2 {
+    margin: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
         /* Disable zoom on all touch devices */
 html, body {
     touch-action: none;
