@@ -1697,6 +1697,23 @@
         .art-mark .m3 { width: 30px; background: #1a1a1a; }
         body.dark .art-mark .m3 { background: #888; }
 
+        /* Disable zoom on all touch devices */
+html, body {
+    touch-action: none;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* Allow only vertical scroll */
+body {
+    touch-action: pan-y;
+}
+
+/* Prevent double-tap zoom on all elements */
+* {
+    touch-action: manipulation;
+}
+
         /* Prevent zoom on touch devices */
 html {
     touch-action: manipulation;
