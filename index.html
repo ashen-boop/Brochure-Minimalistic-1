@@ -1718,6 +1718,18 @@ body {
 html {
     touch-action: manipulation;
 }
+
+        /* Remove horizontal scroll only */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Ensure all elements respect width */
+* {
+    max-width: 100%;
+}
     </style>
 </head>
 <body>
