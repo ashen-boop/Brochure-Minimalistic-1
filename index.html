@@ -1005,6 +1005,7 @@
             font-weight: 400;
             border-bottom: 1px solid transparent;
             transition: border 0.2s, color 0.2s;
+            cursor: pointer;
         }
         .blog-card .blog-content .blog-link:hover { border-bottom: 1px solid #D44B5A; }
 
@@ -1691,6 +1692,99 @@ html, body {
 * {
     max-width: 100%;
 }
+
+/* ---- READ MORE POPUP (rounded message box with cross button) ---- */
+.read-more-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+.read-more-popup-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.read-more-popup {
+    background: #ffffff;
+    color: #1a1a1a;
+    max-width: 480px;
+    width: 100%;
+    border-radius: 32px;
+    padding: 2.2rem 2rem 2rem;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+    border: 1px solid #eaeaea;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+}
+.read-more-popup-overlay.show .read-more-popup {
+    transform: translateY(0) scale(1);
+}
+body.dark .read-more-popup {
+    background: #222;
+    color: #e8e6e1;
+    border-color: #3a3a3a;
+}
+.read-more-popup .popup-cross {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f2f2f2;
+    border: none;
+    color: #555;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.read-more-popup .popup-cross:hover {
+    background: #D44B5A;
+    color: #fff;
+    transform: rotate(90deg);
+}
+body.dark .read-more-popup .popup-cross {
+    background: #333;
+    color: #ccc;
+}
+body.dark .read-more-popup .popup-cross:hover {
+    background: #D44B5A;
+    color: #fff;
+}
+.read-more-popup h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    padding-right: 2.5rem;
+    line-height: 1.25;
+    color: #1a1a1a;
+}
+body.dark .read-more-popup h3 {
+    color: #e8e6e1;
+}
+.read-more-popup p {
+    font-size: 0.98rem;
+    font-weight: 300;
+    line-height: 1.65;
+    color: #3a3a3a;
+    margin: 0;
+}
+body.dark .read-more-popup p {
+    color: #bbb;
+}
     </style>
 </head>
 <body>
@@ -1839,7 +1933,7 @@ html, body {
                             <span class="blog-tag">Design Trends</span>
                             <h4>2026 Design Trends</h4>
                             <p>From organic minimalism to AI-powered creativity — discover what's shaping the future.</p>
-                            <a href="#" class="blog-link">Read More →</a>
+                            <a href="#" class="blog-link" data-topic="trends">Read More →</a>
                         </div>
                     </div>
                     <div class="blog-card">
@@ -1848,7 +1942,7 @@ html, body {
                             <span class="blog-tag">Branding</span>
                             <h4>How to Build a Brand</h4>
                             <p>Timeless branding isn't about trends — it's about authenticity, consistency, and connection.</p>
-                            <a href="#" class="blog-link">Read More →</a>
+                            <a href="#" class="blog-link" data-topic="branding">Read More →</a>
                         </div>
                     </div>
                     <div class="blog-card">
@@ -1857,7 +1951,7 @@ html, body {
                             <span class="blog-tag">Insights</span>
                             <h4>Why Simplicity Wins</h4>
                             <p>In a world of noise, the most powerful designs are often the simplest. Less is more.</p>
-                            <a href="#" class="blog-link">Read More →</a>
+                            <a href="#" class="blog-link" data-topic="simplicity">Read More →</a>
                         </div>
                     </div>
                 </div>
@@ -2012,6 +2106,15 @@ html, body {
 
     <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
+    <!-- READ MORE POPUP -->
+    <div class="read-more-popup-overlay" id="readMoreOverlay">
+        <div class="read-more-popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+            <button class="popup-cross" id="popupCross" aria-label="Close">✕</button>
+            <h3 id="popupTitle">Title</h3>
+            <p id="popupBody">Message</p>
+        </div>
+    </div>
+
     <script>
         const toggle = document.getElementById('darkModeToggle');
         toggle.addEventListener('change', function() {
@@ -2032,6 +2135,56 @@ html, body {
                 menuOverlay.classList.remove('open');
                 menuBtn.classList.remove('open');
             }
+        });
+
+        // ============================================
+        // READ MORE POPUP LOGIC (50 words each)
+        // ============================================
+        const readMoreOverlay = document.getElementById('readMoreOverlay');
+        const popupTitle = document.getElementById('popupTitle');
+        const popupBody = document.getElementById('popupBody');
+        const popupCross = document.getElementById('popupCross');
+
+        const readMoreContent = {
+            trends: {
+                title: '2026 Design Trends',
+                message: 'Organic minimalism returns with softer shapes, natural textures, and calm muted palettes. AI-assisted creativity lets designers explore countless variations in minutes, refining the best with a human touch. Motion becomes the default — subtle micro-animations guide attention and add personality. Tactile, hand-crafted touches like grain and imperfect lines counter digital polish.'
+            },
+            branding: {
+                title: 'How to Build a Brand',
+                message: 'Start with your why. A brand is a promise, not a logo. Define what you stand for, who you serve, and what makes you different. Consistency beats cleverness — the same voice, colors, and values across every touchpoint build trust faster than any single campaign. Listen more than you talk, and be patient. Great brands compound over years.'
+            },
+            simplicity: {
+                title: 'Why Simplicity Wins',
+                message: 'Simplicity is not about having less — it is about having nothing unnecessary. Every element must earn its place. When a design is simple, the message becomes louder, and users do not have to work to understand your offer. Simple designs also age better. The hardest part of simplicity is restraint: knowing what to leave out.'
+            }
+        };
+
+        function openReadMore(topic) {
+            const content = readMoreContent[topic];
+            if (!content) return;
+            popupTitle.textContent = content.title;
+            popupBody.textContent = content.message;
+            readMoreOverlay.classList.add('show');
+        }
+
+        function closeReadMore() {
+            readMoreOverlay.classList.remove('show');
+        }
+
+        document.querySelectorAll('.blog-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                openReadMore(this.dataset.topic);
+            });
+        });
+
+        popupCross.addEventListener('click', closeReadMore);
+        readMoreOverlay.addEventListener('click', function(e) {
+            if (e.target === readMoreOverlay) closeReadMore();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeReadMore();
         });
 
         document.addEventListener('DOMContentLoaded', function() {
